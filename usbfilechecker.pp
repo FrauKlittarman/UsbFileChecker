@@ -1,12 +1,13 @@
 #usbfilechecker
 class usbfilechecker {
-    
-    $LPU_NAME   = '<LPU_NAME>'
-    $URL    = 'https://URL'
-    $SOURCE_FILENAME = 'filename.xls'
+
+    $lpu_name = 'LPU_NAME'
+    $url = 'https://URL'
+    $source_filename = 'FILENAME.xls'
+    $target_directory = "/usr/share/usbfilechecker/"
 
 
-    file { '/var/local/usb_file_checker/':
+    file { '/var/local/usbfilechecker/':
       ensure  => directory,
       source  => 'puppet:///modules/usbfilechecker/',
       recurse => true,
@@ -21,24 +22,31 @@ class usbfilechecker {
       ensure  => present,
       path    => '/var/local/usbfilechecker/main.py',
       match   => '^LPU_NAME =',
-      line    => "LPU_NAME = \"$LPU_NAME\""
+      line    => "LPU_NAME = \"$lpu_name\""
     }
 
     file_line { 'set URL':
       ensure  => present,
       path    => '/var/local/usbfilechecker/main.py',
       match   => '^URL =',
-      line    => "URL = \"$URL\""
+      line    => "URL = \"$url\""
     }
 
     file_line { 'set source filename':
       ensure  => present,
       path    => '/var/local/usbfilechecker/main.py',
       match   => '^SOURCE_FILENAME =',
-      line    => "SOURCE_FILENAME = \"$SOURCE_FILENAME\""
+      line    => "SOURCE_FILENAME = \"$source_filename\""
     }
 
-    cron {'run usbfileckecher':
+    file_line { 'set source targert directory':
+      ensure  => present,
+      path    => '/var/local/usbfilechecker/main.py',
+      match   => '^TARGET_DIRECTORY =',
+      line    => "TARGET_DIRECTORY = \"$target_directory\""
+    }
+
+    cron { 'run usbfileckecher':
       ensure  => present,
       command => "/usr/bin/python3 /var/local/usbfilechecker/main.py",
       user    => root,
