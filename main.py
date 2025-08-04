@@ -7,11 +7,11 @@ from collections import namedtuple
 from pathlib import Path
 from packages.logger import logger
 
-LPU_NAME = "Name"
-URL = "https://localhost/post_item.php"
+LPU_NAME = "LPU_NAME"
+URL = "https://URL"
 
-SOURCE_FILENAME = "clb.md"
-TARGET_DIRECTORY = "/tmp/dest_dir"
+SOURCE_FILENAME = "file.xls"
+TARGET_DIRECTORY = "/usr/share/usbfilechecker"
 
 MountPath = namedtuple("MountPath", ["prefix", "postfix"])
 
@@ -56,7 +56,7 @@ def make_dest_dir(_target: str, _mode: oct = 0o750) -> None:
         try:
             Path(_target).mkdir(parents=True, mode=_mode)
         except FileExistsError as e:
-            logger.error(f"Access problem: {_target}")
+            logger.error(f"Ошибка доступа к целевой директории")
             sys.exit(1)
     elif not _is_access_ok_to(_target, _check_parent=True):
         logger.error(f"Access basedir problem: {_target}")
@@ -109,7 +109,8 @@ def main() -> None:
     for user_directory in list_of_users_mount_points:
         # Проверяем директории примонтированных USB
         # AstraLinux корежит имя флешки, пришлось пойти методом перебора.
-        for usb_mount_point in user_directory:
+        list_of_user_usb_mount_points = os.listdir(Path(mount_path.prefix).joinpath(user_directory, mount_path.postfix))
+        for usb_mount_point in list_of_user_usb_mount_points:
             path_to_source_file = str(
                 Path(mount_path.prefix).joinpath(
                     user_directory, mount_path.postfix, usb_mount_point, SOURCE_FILENAME
