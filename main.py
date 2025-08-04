@@ -10,7 +10,6 @@ from packages.logger import logger
 LPU_NAME = "Name"
 URL = "https://localhost/post_item.php"
 
-SOURCE_USB_NAME = "CLIPBOARD"
 SOURCE_FILENAME = "clb.md"
 TARGET_DIRECTORY = "/tmp/dest_dir"
 
@@ -44,7 +43,7 @@ def get_file_hash(file_path, algorithm="sha256"):
 def _is_access_ok_to(_path: str, _check_parent: bool = False) -> bool:
     if _check_parent:
         if os.access(Path(_path).parent, os.R_OK) and os.access(
-            Path(_path).parent, os.W_OK
+                Path(_path).parent, os.W_OK
         ):
             return True
         else:
@@ -109,29 +108,31 @@ def main() -> None:
     logger.debug(f"Dest file hash sum: {dest_file_hash_sum}")
 
     # Ищем директорию пользователя который примонтировал целевую флешку
-    list_of_dirs = os.listdir(mount_path.prefix)
-    for directory in list_of_dirs:
-        # FIXME добавить имя УСБ для линуксов
-        path_to_source_file = str(
-            Path(mount_path.prefix).joinpath(
-                directory, mount_path.postfix, SOURCE_FILENAME
+    list_of_users_mount_points = os.listdir(mount_path.prefix)
+    for user_directory in list_of_users_mount_points:
+        # Проверяем директории примонтированных USB
+        # AstraLinux корежит имя флешки, пришлось пойти методом перебора.
+        for usb_mount_point in user_directory:
+            path_to_source_file = str(
+                Path(mount_path.prefix).joinpath(
+                    user_directory, mount_path.postfix, usb_mount_point, SOURCE_FILENAME
+                )
             )
-        )
-        is_source_access_ok = _is_access_ok_to(path_to_source_file)
-        logger.debug(f"Access to: {path_to_source_file} is {is_source_access_ok}")
-        if is_source_access_ok and not dest_file_hash_sum:
-            logger.debug("Dest file not found, copy from source")
-            copy_src_to_dst(path_to_source_file, dest_file_path)
-            upload_file(_path=dest_file_path)
-        elif is_source_access_ok:
-            source_file_hash = get_file_hash(path_to_source_file)
-            logger.debug(f"Source file hash: {source_file_hash}")
-            if source_file_hash != dest_file_hash_sum:
-                logger.info("Файлы отличаются, выполняю замену.")
+            is_source_access_ok = _is_access_ok_to(path_to_source_file)
+            logger.debug(f"Access to: {path_to_source_file} is {is_source_access_ok}")
+            if is_source_access_ok and not dest_file_hash_sum:
+                logger.debug("Dest file not found, copy from source")
                 copy_src_to_dst(path_to_source_file, dest_file_path)
                 upload_file(_path=dest_file_path)
-            else:
-                logger.info("Файлы идентичны. прекращаю работу")
+            elif is_source_access_ok:
+                source_file_hash = get_file_hash(path_to_source_file)
+                logger.debug(f"Source file hash: {source_file_hash}")
+                if source_file_hash != dest_file_hash_sum:
+                    logger.info("Файлы отличаются, выполняю замену.")
+                    copy_src_to_dst(path_to_source_file, dest_file_path)
+                    upload_file(_path=dest_file_path)
+                else:
+                    logger.info("Файлы идентичны. прекращаю работу")
 
 
 if __name__ == "__main__":
