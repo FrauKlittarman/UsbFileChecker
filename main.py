@@ -17,16 +17,13 @@ MountPath = namedtuple("MountPath", ["prefix", "postfix"])
 
 
 def get_os_name() -> str:
-    # _os = (subprocess.check_output(["lsb_release", "-i"], text=True).split(":")[1].strip())
-    # return _os
-    return "MacOS"
+    _os = (subprocess.check_output(["lsb_release", "-i"], text=True).split(":")[1].strip())
+    return _os
 
 
 def get_default_mount_path(_os_name: str = get_os_name()) -> MountPath:
     if _os_name == "RED SOFT":
         return MountPath(prefix="/run/media", postfix="")
-    if _os_name == "MacOS":
-        return MountPath(prefix="/Volumes", postfix="")
     else:
         return MountPath(prefix="/run/user", postfix="media")
 
