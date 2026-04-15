@@ -32,12 +32,12 @@ def _open_toml(
     return data
 
 
-
 def get_os_name() -> str:
     _os = (
         subprocess.check_output(["lsb_release", "-i"], text=True).split(":")[1].strip()
     )
     return _os
+
 
 PROJECT_ROOT = _find_project_root()
 TOML_PATH = os.path.join(PROJECT_ROOT, "pyproject.toml")
@@ -48,11 +48,4 @@ PROJECT_VERSION = _open_toml(TOML_PATH, "project", "version", ">0.0.0")
 SOURCE_FILENAME = _open_toml(TOML_PATH, "config", "filename", "datafile.xls")
 SAVE_PATH = _open_toml(TOML_PATH, "config", "save_path", f"/usr/share/{PROJECT_NAME}")
 TEMP_PATH = _open_toml(TOML_PATH, "config", "temp_path", f"/tmp/{PROJECT_NAME}")
-LOG_PATH = _open_toml(
-    TOML_PATH,
-    "config",
-    "log_path",
-    "/var/log/",
-)
-
-
+LOG_PATH = _open_toml(TOML_PATH, "config", "log_path", "/var/log/")

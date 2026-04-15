@@ -5,26 +5,21 @@ import sys
 from collections import namedtuple
 from pathlib import Path
 
-from packages.configuration import SAVE_PATH, SOURCE_FILENAME
+from packages.configuration import SAVE_PATH, SOURCE_FILENAME, get_os_name
 from packages.logger import logger
 
 
 MountPath = namedtuple("MountPath", ["prefix", "postfix"])
 
 
-def get_os_name() -> str:
-    _os = (subprocess.check_output(["lsb_release", "-i"], text=True).split(":")[1].strip())
-    return _os
-
-
 def get_default_mount_path(_os_name: str = get_os_name()) -> MountPath:
     if _os_name == "RED SOFT":
         return MountPath(prefix="/run/media", postfix="")
-    else:
+    else:  # предполагаем что используется AstraLinux
         return MountPath(prefix="/run/user", postfix="media")
 
 
-def get_file_hash(file_path, algorithm="sha256"):
+def get_file_hash(file_path: str, algorithm="sha256") -> str:
     path = Path(file_path)
     hash_func = hashlib.new(algorithm)
     with path.open("rb") as f:
@@ -46,12 +41,12 @@ def _is_access_ok_to(_path: str, _check_parent: bool = False) -> bool:
     return False
 
 
-def make_dest_dir(_target: str, _mode: oct = 0o750) -> None:
+def make_dest_dir(_target: str, _mode: int = 0o750) -> None:
     if not _is_access_ok_to(_target) and _is_access_ok_to(_target, _check_parent=True):
         logger.debug(f"Make target directory: {_target}")
         try:
             Path(_target).mkdir(parents=True, mode=_mode)
-        except FileExistsError as e:
+        except FileExistsError:
             logger.error(f"Ошибка доступа к целевой директории")
             sys.exit(1)
     elif not _is_access_ok_to(_target, _check_parent=True):
@@ -80,7 +75,9 @@ def main() -> None:
     for user_directory in list_of_users_mount_points:
         # Проверяем директории примонтированных USB
         # AstraLinux корежит имя флешки, пришлось пойти методом перебора.
-        list_of_user_usb_mount_points = os.listdir(Path(mount_path.prefix).joinpath(user_directory, mount_path.postfix))
+        list_of_user_usb_mount_points = os.listdir(
+            Path(mount_path.prefix).joinpath(user_directory, mount_path.postfix)
+        )
         for usb_mount_point in list_of_user_usb_mount_points:
             path_to_source_file = str(
                 Path(mount_path.prefix).joinpath(
