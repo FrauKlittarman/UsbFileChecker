@@ -5,7 +5,7 @@ from logging.handlers import RotatingFileHandler
 
 _is_debug = True
 _log_path = "/tmp/"
-_log_name = "meteo-app"
+_log_name = "usbfilechecker"
 
 
 class SecureRotatingFileHandler(RotatingFileHandler):
