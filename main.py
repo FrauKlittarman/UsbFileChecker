@@ -1,5 +1,4 @@
 import os
-import subprocess
 import hashlib
 import shutil
 import sys
@@ -37,7 +36,7 @@ def get_file_hash(file_path, algorithm="sha256"):
 def _is_access_ok_to(_path: str, _check_parent: bool = False) -> bool:
     if _check_parent:
         if os.access(Path(_path).parent, os.R_OK) and os.access(
-                Path(_path).parent, os.W_OK
+            Path(_path).parent, os.W_OK
         ):
             return True
         else:
@@ -59,39 +58,14 @@ def make_dest_dir(_target: str, _mode: oct = 0o750) -> None:
         logger.error(f"Access basedir problem: {_target}")
 
 
-def upload_file(_path: str, _url: str = URL) -> None:
-    try:
-        t = subprocess.run(
-            [
-                "/usr/bin/curl",
-                "-X",
-                "POST",
-                "-F",
-                f"lpu={LPU_NAME}",
-                "-F",
-                f"file=@{_path}",
-                _url,
-            ],
-            check=True,
-            stdout=subprocess.PIPE,
-            text=True,
-        )
-        if t.returncode == 0:
-            logger.info(f"Файл {_path} успешно загружен")
-
-    except subprocess.CalledProcessError as e:
-        logger.error(f"Ошибка загрузки файла:\n{e}")
-        sys.exit(1)
-
-
-def copy_src_to_dst(_src: str, _dst: str, _mode: oct = 0o650) -> None:
+def copy_src_to_dst(_src: str, _dst: str, _mode: int = 0o640) -> None:
     shutil.copy2(_src, _dst)
     os.chmod(_dst, _mode)
 
 
 def main() -> None:
     mount_path = get_default_mount_path()
-    make_dest_dir(SAVE_PATH)
+    make_dest_dir(SAVE_PATH, 0o755)
     dest_file_path = str(Path(SAVE_PATH).joinpath(SOURCE_FILENAME))
 
     if not _is_access_ok_to(dest_file_path):
@@ -117,15 +91,13 @@ def main() -> None:
             logger.debug(f"Access to: {path_to_source_file} is {is_source_access_ok}")
             if is_source_access_ok and not dest_file_hash_sum:
                 logger.debug("Dest file not found, copy from source")
-                copy_src_to_dst(path_to_source_file, dest_file_path)
-                upload_file(_path=dest_file_path)
+                copy_src_to_dst(path_to_source_file, dest_file_path, 0o644)
             elif is_source_access_ok:
                 source_file_hash = get_file_hash(path_to_source_file)
                 logger.debug(f"Source file hash: {source_file_hash}")
                 if source_file_hash != dest_file_hash_sum:
                     logger.info("Файлы отличаются, выполняю замену.")
-                    copy_src_to_dst(path_to_source_file, dest_file_path)
-                    upload_file(_path=dest_file_path)
+                    copy_src_to_dst(path_to_source_file, dest_file_path, 0o644)
                 else:
                     logger.info("Файлы идентичны. прекращаю работу")
 
