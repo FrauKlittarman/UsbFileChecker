@@ -5,13 +5,10 @@ import shutil
 import sys
 from collections import namedtuple
 from pathlib import Path
+
+from packages.configuration import SAVE_PATH, SOURCE_FILENAME
 from packages.logger import logger
 
-LPU_NAME = "LPU_NAME"
-URL = "https://URL"
-
-SOURCE_FILENAME = "file.xls"
-TARGET_DIRECTORY = "/usr/share/usbfilechecker"
 
 MountPath = namedtuple("MountPath", ["prefix", "postfix"])
 
@@ -94,8 +91,8 @@ def copy_src_to_dst(_src: str, _dst: str, _mode: oct = 0o650) -> None:
 
 def main() -> None:
     mount_path = get_default_mount_path()
-    make_dest_dir(TARGET_DIRECTORY)
-    dest_file_path = str(Path(TARGET_DIRECTORY).joinpath(SOURCE_FILENAME))
+    make_dest_dir(SAVE_PATH)
+    dest_file_path = str(Path(SAVE_PATH).joinpath(SOURCE_FILENAME))
 
     if not _is_access_ok_to(dest_file_path):
         dest_file_hash_sum = ""

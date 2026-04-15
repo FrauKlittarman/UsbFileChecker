@@ -46,8 +46,7 @@ AUTHOR = _open_toml(TOML_PATH, "project", "author", "KapVA")
 RELEASE_YEAR = _open_toml(TOML_PATH, "project", "year", "2026")
 PROJECT_VERSION = _open_toml(TOML_PATH, "project", "version", ">0.0.0")
 SOURCE_FILENAME = _open_toml(TOML_PATH, "config", "filename", "datafile.xls")
-TARGET_DIRECTORY = 
-TARGET_DIRECTORY = _open_toml(TOML_PATH, "config", "save_path", f"/usr/share/{PROJECT_NAME}")
+SAVE_PATH = _open_toml(TOML_PATH, "config", "save_path", f"/usr/share/{PROJECT_NAME}")
 TEMP_PATH = _open_toml(TOML_PATH, "config", "temp_path", f"/tmp/{PROJECT_NAME}")
 LOG_PATH = _open_toml(
     TOML_PATH,

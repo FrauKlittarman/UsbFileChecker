@@ -1,8 +1,11 @@
 [project]
-name = "UsbFileChecker"
-version = "0.1.0a"
+name = "usbfilechecker"
+version = "2026.04.1a"
 description = "Add your description here"
 requires-python = ">=3.7.3"
 dependencies = [
     "black>=23.3.0",
+    "toml==0.10.0",
 ]
+[config]
+filename="test.xls"
