@@ -8,7 +8,6 @@ from pathlib import Path
 from packages.configuration import SAVE_PATH, SOURCE_FILENAME, get_os_name
 from packages.logger import logger
 
-
 MountPath = namedtuple("MountPath", ["prefix", "postfix"])
 
 
