@@ -59,7 +59,7 @@ stdout_handler.setFormatter(CustomFormatter(fmt))
 
 today = datetime.date.today()
 
-#Создать директорию для логов если таковая не имеется
+# Создать директорию для логов если таковая не имеется
 make_dest_dir(_log_path, 0o750)
 file_handler = SecureRotatingFileHandler(
     filename=f"{_log_path}/{_log_name}.log",
