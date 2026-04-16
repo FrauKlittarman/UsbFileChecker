@@ -2,10 +2,11 @@ import os
 import datetime
 import logging
 from logging.handlers import RotatingFileHandler
+from packages.configuration import PROJECT_NAME, LOG_PATH, DEBUG_IS
 
-_is_debug = True
-_log_path = "/tmp/"
-_log_name = "usbfilechecker"
+_is_debug = DEBUG_IS
+_log_path = LOG_PATH
+_log_name = PROJECT_NAME
 
 
 class SecureRotatingFileHandler(RotatingFileHandler):
