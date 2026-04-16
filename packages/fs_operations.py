@@ -1,10 +1,9 @@
 import hashlib
 import os
 import shutil
-import sys
 from pathlib import Path
 
-from packages.logger import logger
+from packages.exceptions import FileAccessError
 
 
 def is_access_ok_to(_path: str, _check_parent: bool = False) -> bool:
@@ -22,14 +21,14 @@ def is_access_ok_to(_path: str, _check_parent: bool = False) -> bool:
 
 def make_dest_dir(_target: str, _mode: int = 0o750) -> None:
     if not is_access_ok_to(_target) and is_access_ok_to(_target, _check_parent=True):
-        logger.debug(f"Make target directory: {_target}")
         try:
             Path(_target).mkdir(parents=True, mode=_mode)
         except FileExistsError:
-            logger.error("Ошибка доступа к целевой директории")
-            sys.exit(1)
+            raise FileAccessError(
+                f"Ошибка доступа, возможно отсутствует доступ к родителю: {_target}"
+            )
     elif not is_access_ok_to(_target, _check_parent=True):
-        logger.error(f"Access basedir problem: {_target}")
+        raise FileAccessError(f"Access basedir problem: {_target}")
 
 
 def copy_src_to_dst(_src: str, _dst: str, _mode: int = 0o640) -> None:

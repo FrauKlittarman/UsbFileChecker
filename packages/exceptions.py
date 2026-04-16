@@ -4,19 +4,7 @@ class PyprojectFileNotFound(Exception):
     pass
 
 
-class TomlValidateError(Exception):
+class FileAccessError(Exception):
     """Затычка при парсинге TOML"""
-
-    pass
-
-
-class AppNotFoundError(Exception):
-    """Feh not found"""
-
-    pass
-
-
-class JSONFileIsEmpty(Exception):
-    """JSON is empty"""
 
     pass
