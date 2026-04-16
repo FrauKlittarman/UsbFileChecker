@@ -1,11 +1,14 @@
 import os
-import hashlib
-import shutil
-import sys
 from collections import namedtuple
 from pathlib import Path
 
 from packages.configuration import SAVE_PATH, SOURCE_FILENAME, get_os_name
+from packages.fs_operations import (
+    copy_src_to_dst,
+    get_file_hash,
+    is_access_ok_to,
+    make_dest_dir,
+)
 from packages.logger import logger
 
 MountPath = namedtuple("MountPath", ["prefix", "postfix"])
@@ -18,51 +21,12 @@ def get_default_mount_path(_os_name: str = get_os_name()) -> MountPath:
         return MountPath(prefix="/run/user", postfix="media")
 
 
-def get_file_hash(file_path: str, algorithm="sha256") -> str:
-    path = Path(file_path)
-    hash_func = hashlib.new(algorithm)
-    with path.open("rb") as f:
-        for chunk in iter(lambda: f.read(8192), b""):
-            hash_func.update(chunk)
-    return hash_func.hexdigest()
-
-
-def _is_access_ok_to(_path: str, _check_parent: bool = False) -> bool:
-    if _check_parent:
-        if os.access(Path(_path).parent, os.R_OK) and os.access(
-            Path(_path).parent, os.W_OK
-        ):
-            return True
-        else:
-            return False
-    if os.access(_path, os.R_OK) and os.access(_path, os.W_OK):
-        return True
-    return False
-
-
-def make_dest_dir(_target: str, _mode: int = 0o750) -> None:
-    if not _is_access_ok_to(_target) and _is_access_ok_to(_target, _check_parent=True):
-        logger.debug(f"Make target directory: {_target}")
-        try:
-            Path(_target).mkdir(parents=True, mode=_mode)
-        except FileExistsError:
-            logger.error(f"Ошибка доступа к целевой директории")
-            sys.exit(1)
-    elif not _is_access_ok_to(_target, _check_parent=True):
-        logger.error(f"Access basedir problem: {_target}")
-
-
-def copy_src_to_dst(_src: str, _dst: str, _mode: int = 0o640) -> None:
-    shutil.copy2(_src, _dst)
-    os.chmod(_dst, _mode)
-
-
 def main() -> None:
     mount_path = get_default_mount_path()
     make_dest_dir(SAVE_PATH, 0o755)
     dest_file_path = str(Path(SAVE_PATH).joinpath(SOURCE_FILENAME))
 
-    if not _is_access_ok_to(dest_file_path):
+    if not is_access_ok_to(dest_file_path):
         dest_file_hash_sum = ""
     else:
         dest_file_hash_sum = get_file_hash(dest_file_path)
@@ -83,7 +47,7 @@ def main() -> None:
                     user_directory, mount_path.postfix, usb_mount_point, SOURCE_FILENAME
                 )
             )
-            is_source_access_ok = _is_access_ok_to(path_to_source_file)
+            is_source_access_ok = is_access_ok_to(path_to_source_file)
             logger.debug(f"Access to: {path_to_source_file} is {is_source_access_ok}")
             if is_source_access_ok and not dest_file_hash_sum:
                 logger.debug("Dest file not found, copy from source")

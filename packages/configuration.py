@@ -18,16 +18,16 @@ def _find_project_root(marker="pyproject.toml"):
 
 
 def _open_toml(
-    _path: str, _section: str, _arg: str, _default: Union[str, bool, float] = None
+        _path: str, _section: str, _arg: str, _default: Union[str, bool, float] = None
 ) -> Union[str, bool]:
     """TODO: приделать нормальную валидацию и обработку ошибок"""
     try:
         with open(_path, "r") as f:
             data = toml.load(f)
         data = data[_section][_arg]
-    except FileNotFoundError as e:
+    except FileNotFoundError:
         raise PyprojectFileNotFound("pyproject.toml not found")
-    except KeyError as e:
+    except KeyError:
         data = _default
     return data
 

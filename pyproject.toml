@@ -10,3 +10,8 @@ dependencies = [
 [config]
 # filename обычно это SN устройства: filename="58381902.xls"
 filename="test.xls"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.15.10",
+]

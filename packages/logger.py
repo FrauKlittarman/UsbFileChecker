@@ -1,8 +1,9 @@
-import os
 import datetime
 import logging
+import os
 from logging.handlers import RotatingFileHandler
-from packages.configuration import PROJECT_NAME, LOG_PATH, DEBUG_IS
+
+from packages.configuration import DEBUG_IS, LOG_PATH, PROJECT_NAME
 
 _is_debug = DEBUG_IS
 _log_path = LOG_PATH
