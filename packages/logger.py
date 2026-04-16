@@ -4,6 +4,7 @@ import os
 from logging.handlers import RotatingFileHandler
 
 from packages.configuration import DEBUG_IS, LOG_PATH, PROJECT_NAME
+from packages.fs_operations import make_dest_dir
 
 _is_debug = DEBUG_IS
 _log_path = LOG_PATH
@@ -58,6 +59,8 @@ stdout_handler.setFormatter(CustomFormatter(fmt))
 
 today = datetime.date.today()
 
+#Создать директорию для логов если таковая не имеется
+make_dest_dir(_log_path, 0o750)
 file_handler = SecureRotatingFileHandler(
     filename=f"{_log_path}/{_log_name}.log",
     maxBytes=5 * 1024 * 1024,  # 5 MB
