@@ -1,11 +1,11 @@
 #usbfilechecker
-class usbfilechecker {
+class usbfilechecker (
+  String $source_filename = 'FILENAME.xls',
+  Array[String] $packages = ['python3‑toml'],
+  String $minute = '*/5',
+){
 
-    $lpu_name = 'LPU_NAME'
-    $url = 'https://URL'
-    $source_filename = 'FILENAME.xls'
-    $target_directory = "/usr/share/usbfilechecker/"
-
+    ensure_resources('package', { $packages => {} }, { 'ensure' => 'present' })
 
     file { '/var/local/usbfilechecker/':
       ensure  => directory,
@@ -13,43 +13,22 @@ class usbfilechecker {
       recurse => true,
       owner   => root,
       group   => root,
-      mode    => '0644',
+      mode    => '0750',
       purge   => true,
       force   => true,
     }
 
-    file_line { 'set LPU_NAME':
-      ensure  => present,
-      path    => '/var/local/usbfilechecker/main.py',
-      match   => '^LPU_NAME =',
-      line    => "LPU_NAME = \"$lpu_name\""
-    }
-
-    file_line { 'set URL':
-      ensure  => present,
-      path    => '/var/local/usbfilechecker/main.py',
-      match   => '^URL =',
-      line    => "URL = \"$url\""
-    }
-
     file_line { 'set source filename':
       ensure  => present,
-      path    => '/var/local/usbfilechecker/main.py',
-      match   => '^SOURCE_FILENAME =',
-      line    => "SOURCE_FILENAME = \"$source_filename\""
+      path    => '/var/local/usbfilechecker/pyproject.toml',
+      match   => '^filename =',
+      line    => "filename = \"${source_filename}\""
     }
 
-    file_line { 'set source targert directory':
+    cron { 'run usbfilechecker':
       ensure  => present,
-      path    => '/var/local/usbfilechecker/main.py',
-      match   => '^TARGET_DIRECTORY =',
-      line    => "TARGET_DIRECTORY = \"$target_directory\""
-    }
-
-    cron { 'run usbfileckecher':
-      ensure  => present,
-      command => "/usr/bin/python3 /var/local/usbfilechecker/main.py",
+      command => "/usr/bin/python3 /var/local/usbfilechecker/main.py > /dev/null 2>&1",
       user    => root,
-      minute  => '*/5'
+      minute  => $minute,
     }
 }
