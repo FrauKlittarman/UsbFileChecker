@@ -2,7 +2,15 @@ import os
 from collections import namedtuple
 from pathlib import Path
 
-from packages.configuration import SAVE_PATH, SOURCE_FILENAME, get_os_name
+from packages.configuration import (
+    AUTHOR,
+    PROJECT_NAME,
+    PROJECT_VERSION,
+    RELEASE_YEAR,
+    SAVE_PATH,
+    SOURCE_FILENAME,
+    get_os_name,
+)
 from packages.fs_operations import (
     copy_src_to_dst,
     get_file_hash,
@@ -63,9 +71,9 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    logger.warning("=== Program start ===")
+    logger.info(f"==== {PROJECT_NAME} v{PROJECT_VERSION} start ====")
     try:
         main()
     except Exception as e:
         logger.error(f"Непредвиденная ошибка:\n{e}")
-    logger.warning("=== Program end ===")
+    logger.info(f"==== end  © {AUTHOR} - {RELEASE_YEAR} ====")
